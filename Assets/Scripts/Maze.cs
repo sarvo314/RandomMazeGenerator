@@ -32,21 +32,29 @@ public class Maze : MonoBehaviour
 
     List<List<int>> Graph = new List<List<int>>();
 
-    int maxWidth = 40;
-    int maxHeight = 40;
+    int maxWidth = 9;
+    int maxHeight = 9;
 
     public byte[,] map;
+
+    public Transform cubeParent;
 
 
     void Start()
     {
+        MakeMaze();
+    }
+
+    public void MakeMaze()
+    {
         Initialise();
         GenerateBoundary();
         DrawMap();
-
     }
+
     void Initialise()
     {
+        DestroyChildren(cubeParent);
         map = new byte[maxWidth, maxHeight];
         for (int x = 0; x < maxWidth; x++)
         {
@@ -57,7 +65,13 @@ public class Maze : MonoBehaviour
             }
         }
     }
-
+    private void DestroyChildren(Transform obj)
+    {
+        foreach (Transform item in obj)
+        {
+            Destroy(item.gameObject);
+        }
+    }
     void GenerateBoundary()
     {
         for (int x = 0; x < maxWidth; x++)
@@ -81,6 +95,7 @@ public class Maze : MonoBehaviour
                     GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     wall.transform.localScale = new Vector3(scale, scale, scale);
                     wall.transform.position = pos;
+                    wall.transform.parent = cubeParent;
                 }
             }
     }
