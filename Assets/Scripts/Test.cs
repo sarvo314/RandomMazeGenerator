@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class MapLocation
+public class Map
 {
     public int x;
     public int z;
 
-    public MapLocation(int _x, int _z)
+    public Map(int _x, int _z)
     {
         x = _x;
         z = _z;
@@ -16,11 +16,11 @@ public class MapLocation
         return new Vector2(x, z);
     }
 
-    public static MapLocation operator +(MapLocation a, MapLocation b)
-        => new MapLocation(a.x + b.x, a.z + b.z);
+    public static Map operator +(Map a, Map b)
+        => new Map(a.x + b.x, a.z + b.z);
 }
 
-public class Maze : MonoBehaviour
+public class Test : MonoBehaviour
 {
     [SerializeField]
     GameObject cubePrefab;
