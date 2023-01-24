@@ -22,33 +22,38 @@ public class MapLocation
 
 public class Maze : MonoBehaviour
 {
-    [SerializeField]
-    GameObject cubePrefab;
-    [SerializeField]
-    GameObject plane;
+    //[SerializeField]
+    //GameObject cubePrefab;
+    //[SerializeField]
+    //GameObject plane;
     [SerializeField]
     [Tooltip("Scale of the cube")]
     int scale = 10;
 
     List<List<int>> Graph = new List<List<int>>();
 
-    float maxWidth;
-    float maxHeight;
+    int maxWidth = 40;
+    int maxHeight = 40;
 
     public byte[,] map;
 
 
     void Start()
     {
+        Initialise();
         GenerateBoundary();
+        DrawMap();
+
     }
     void Initialise()
     {
+        map = new byte[maxWidth, maxHeight];
         for (int x = 0; x < maxWidth; x++)
         {
+            Debug.Log("We ddo this");
             for (int z = 0; z < maxHeight; z++)
             {
-
+                map[x, z] = 1;
             }
         }
     }
@@ -59,9 +64,25 @@ public class Maze : MonoBehaviour
         {
             for (int z = 0; z < maxHeight; z++)
             {
-
+                if (Random.Range(0, 100) < 50)
+                    map[x, z] = 0;
             }
         }
+    }
+    void DrawMap()
+    {
+        for (int x = 0; x < maxHeight; x++)
+            for (int z = 0; z < maxWidth; z++)
+            {
+                if (map[x, z] == 1)
+                {
+                    Debug.Log("We created a cube");
+                    Vector3 pos = new Vector3(x * scale, 0, z * scale);
+                    GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    wall.transform.localScale = new Vector3(scale, scale, scale);
+                    wall.transform.position = pos;
+                }
+            }
     }
 
 
