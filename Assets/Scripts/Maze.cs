@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class MapLocation
 {
     public int x;
@@ -11,94 +13,103 @@ public class MapLocation
         x = _x;
         z = _z;
     }
+
     public Vector2 ToVector()
     {
         return new Vector2(x, z);
     }
 
-    public static MapLocation operator +(MapLocation a, MapLocation b)
-        => new MapLocation(a.x + b.x, a.z + b.z);
+    //public static MapLocation operator +(MapLocation a, MapLocation b)
+    //   => new MapLocation(a.x + b.x, a.z + b.z);
+
 }
 
 public class Maze : MonoBehaviour
 {
-    //[SerializeField]
-    //GameObject cubePrefab;
-    //[SerializeField]
-    //GameObject plane;
-    [SerializeField]
-    [Tooltip("Scale of the cube")]
-    int scale = 10;
+    public List<MapLocation> directions = new List<MapLocation>() {
+        new MapLocation(1, 0),
+        new MapLocation(0, 1),
+        new MapLocation(-1, 0), new MapLocation(0, -1) };
 
-    List<List<int>> Graph = new List<List<int>>();
+    public List<int> nums = new List<int>() { 1, 2, 3, 4 };
 
-    int maxWidth = 9;
-    int maxHeight = 9;
-
+    public int width = 30; //x length
+    public int depth = 30; //z length
     public byte[,] map;
+    public int scale = 6;
+    public Vector2Int generationPoint = new Vector2Int(0, 0);
 
-    public Transform cubeParent;
+    //MapLocation a, b;
+    //MapLocation a = new MapLocation(1,2);
+    //MapLocation b = new MapLocation(3, 5);
+    //MapLocation a + b;
 
+    GameObject cubeParent;
 
+    // Start is called before the first frame update
     void Start()
     {
+        //MapLocation.operator();
+        cubeParent = GameObject.FindGameObjectWithTag("cubeParent");
         MakeMaze();
     }
 
     public void MakeMaze()
     {
-        Initialise();
-        GenerateBoundary();
+        DestroyChilds();
+        InitialiseMap();
+        Generate();
         DrawMap();
     }
 
-    void Initialise()
+    private void DestroyChilds()
     {
-        DestroyChildren(cubeParent);
-        map = new byte[maxWidth, maxHeight];
-        for (int x = 0; x < maxWidth; x++)
-        {
-            Debug.Log("We ddo this");
-            for (int z = 0; z < maxHeight; z++)
-            {
-                map[x, z] = 1;
-            }
-        }
-    }
-    private void DestroyChildren(Transform obj)
-    {
-        foreach (Transform item in obj)
+        foreach (Transform item in cubeParent.transform)
         {
             Destroy(item.gameObject);
         }
     }
-    void GenerateBoundary()
+
+    void InitialiseMap()
     {
-        for (int x = 0; x < maxWidth; x++)
-        {
-            for (int z = 0; z < maxHeight; z++)
+        map = new byte[width, depth];
+        for (int z = 0; z < depth; z++)
+            for (int x = 0; x < width; x++)
             {
-                if (Random.Range(0, 100) < 50)
-                    map[x, z] = 0;
+                map[x, z] = 1;     //1 = wall  0 = corridor
             }
-        }
     }
-    void DrawMap()
+
+    public virtual void Generate()
     {
-        for (int x = 0; x < maxHeight; x++)
-            for (int z = 0; z < maxWidth; z++)
+    }
+
+    public void DrawMap()
+    {
+        for (int z = 0; z < depth; z++)
+            for (int x = 0; x < width; x++)
             {
                 if (map[x, z] == 1)
                 {
-                    Debug.Log("We created a cube");
                     Vector3 pos = new Vector3(x * scale, 0, z * scale);
                     GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     wall.transform.localScale = new Vector3(scale, scale, scale);
                     wall.transform.position = pos;
-                    wall.transform.parent = cubeParent;
+                    wall.transform.SetParent(cubeParent.transform);
                 }
             }
+        //yield return new WaitForSeconds(0.01f);
     }
 
-
+    public int CountEmptyNeighbours(int x, int z)
+    {
+        int count = 0;
+        //basically if we are at the edge or we are somwhere outside of the maze
+        if (x <= 0 || x >= width - 1 || z <= 0 || z >= depth - 1) return 5;
+        if (map[x - 1, z] == 0) count++;
+        if (map[x + 1, z] == 0) count++;
+        if (map[x, z + 1] == 0) count++;
+        if (map[x, z - 1] == 0) count++;
+        return count;
+    }
 }
